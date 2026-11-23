@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manajemen Proyek &amp; Tugas Harian</title>
+  <!-- Bootstrap Icons CDN untuk ikon antarmuka -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Notifikasi pesan sukses / gagal -->
+  <div id="wadah-notifikasi" class="wadah-notifikasi"></div>
+
+  <!-- ==================== HALAMAN LOGIN & REGISTER ==================== -->
+  <section id="halaman-auth" class="auth-container">
+    <div class="auth-header-bar">
+      <div class="logo-app">
+        <i class="bi bi-kanban-fill"></i>
+        <span>Kerja<strong>Ku</strong></span>
+      </div>
+      <button type="button" class="btn-ikon tombol-tema" title="Ganti Mode Gelap/Terang">
+        <i class="bi bi-moon-stars"></i>
+      </button>
+    </div>
+
+    <div class="kotak-auth">
+      <h2>Selamat Datang</h2>
+      <p class="teks-redup">Masuk atau daftar akun untuk mulai mengelola proyek dan tugas harianmu.</p>
+
+      <div class="tab-auth">
+        <button type="button" id="btn-tab-login" class="aktif">Login</button>
+        <button type="button" id="btn-tab-register">Register</button>
+      </div>
+
+      <!-- Form Login -->
+      <form id="form-login" novalidate>
+        <div class="grup-input">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="contoh@email.com" />
+          <small class="pesan-error" id="err-login-email"></small>
+        </div>
+        <div class="grup-input">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Masukkan password" />
+          <small class="pesan-error" id="err-login-password"></small>
+        </div>
+        <button type="submit" class="btn btn-utama btn-penuh">Masuk</button>
+      </form>
+
+      <!-- Form Register -->
+      <form id="form-register" class="sembunyi" novalidate>
+        <div class="grup-input">
+          <label for="reg-nama">Nama Lengkap</label>
+          <input type="text" id="reg-nama" placeholder="Masukkan nama lengkap" />
+          <small class="pesan-error" id="err-reg-nama"></small>
+        </div>
+        <div class="grup-input">
+          <label for="reg-email">Email</label>
+          <input type="email" id="reg-email" placeholder="contoh@email.com" />
+          <small class="pesan-error" id="err-reg-email"></small>
+        </div>
+        <div class="grup-input">
+          <label for="reg-password">Password (minimal 6 karakter)</label>
+          <input type="password" id="reg-password" placeholder="Buat password" />
+          <small class="pesan-error" id="err-reg-password"></small>
+        </div>
+        <div class="grup-input">
+          <label for="reg-konfirmasi">Ulangi Password</label>
+          <input type="password" id="reg-konfirmasi" placeholder="Ketik ulang password" />
+          <small class="pesan-error" id="err-reg-konfirmasi"></small>
+        </div>
+        <button type="submit" class="btn btn-utama btn-penuh">Daftar Akun</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ==================== HALAMAN UTAMA (HARUS LOGIN) ==================== -->
+  <div id="halaman-utama" class="layout-app sembunyi">
+    <div id="overlay-sidebar" class="overlay-sidebar sembunyi"></div>
+
+    <!-- Sidebar Menu -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-atas">
+        <div class="logo-app">
+          <i class="bi bi-kanban-fill"></i>
+          <span>Kerja<strong>Ku</strong></span>
+        </div>
+        <button type="button" id="btn-tutup-sidebar" class="btn-ikon khusus-hp">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <nav class="menu-navigasi">
+        <button type="button" class="item-menu aktif" data-halaman="dashboard">
+          <i class="bi bi-grid"></i>
+          <span>Dashboard</span>
+        </button>
+        <button type="button" class="item-menu" data-halaman="proyek">
+          <i class="bi bi-folder"></i>
+          <span>Daftar Proyek</span>
+          <span id="badge-jml-proyek" class="badge-angka">0</span>
+        </button>
+        <button type="button" class="item-menu" data-halaman="tugas">
+          <i class="bi bi-check2-square"></i>
+          <span>Semua Tugas</span>
+          <span id="badge-jml-tugas" class="badge-angka">0</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-proyek">
+        <div class="judul-kecil-sidebar">
+          <span>PROYEK SAYA</span>
+          <button type="button" id="btn-sidebar-tambah-proyek" class="tombol-teks">+ Tambah</button>
+        </div>
+        <div id="list-proyek-sidebar" class="list-proyek-sidebar"></div>
+      </div>
+
+      <div class="sidebar-bawah">
+        <div class="info-akun">
+          <div id="avatar-user" class="avatar">U</div>
+          <div class="detail-akun">
+            <div id="nama-user-tampil" class="nama-user">Nama User</div>
+            <div id="email-user-tampil" class="email-user">user@email.com</div>
+          </div>
+          <button type="button" id="btn-logout" class="btn-ikon teks-merah" title="Logout">
+            <i class="bi bi-box-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Area Konten Kanan -->
+    <div class="area-konten">
+      <header class="navbar-atas">
+        <div class="navbar-kiri">
+          <button type="button" id="btn-buka-sidebar" class="btn-ikon khusus-hp">
+            <i class="bi bi-list"></i>
+          </button>
+          <div>
+            <h1 id="judul-halaman" class="judul-halaman">Dashboard</h1>
+            <p id="subjudul-halaman" class="subjudul-halaman">Ringkasan proyek dan tugas harian</p>
+          </div>
+        </div>
+
+        <div class="navbar-kanan">
+          <button type="button" class="btn-ikon tombol-tema" title="Ganti Mode Gelap/Terang">
+            <i class="bi bi-moon-stars"></i>
+          </button>
+          <button type="button" id="btn-cepat-tugas" class="btn btn-sekunder btn-kecil">
+            <i class="bi bi-plus"></i> Tugas
+          </button>
+          <button type="button" id="btn-cepat-proyek" class="btn btn-utama btn-kecil">
+            <i class="bi bi-plus"></i> Proyek
+          </button>
+        </div>
+      </header>
+
+      <main class="isi-utama">
+        <!-- 1. TAMPILAN DASHBOARD -->
+        <section id="bagian-dashboard">
+          <div class="grid-statistik">
+            <div class="kartu-stat">
+              <div class="stat-atas">
+                <span>Total Proyek</span>
+                <i class="bi bi-folder2-open ikon-biru"></i>
+              </div>
+              <div id="angka-total-proyek" class="angka-besar">0</div>
+              <small id="ket-proyek-aktif" class="teks-redup">0 proyek berjalan</small>
+            </div>
+
+            <div class="kartu-stat">
+              <div class="stat-atas">
+                <span>To-do</span>
+                <i class="bi bi-circle ikon-abu"></i>
+              </div>
+              <div id="angka-todo" class="angka-besar">0</div>
+              <small class="teks-redup">Belum dikerjakan</small>
+            </div>
+
+            <div class="kartu-stat">
+              <div class="stat-atas">
+                <span>In-Progress</span>
+                <i class="bi bi-clock-history ikon-kuning"></i>
+              </div>
+              <div id="angka-progress" class="angka-besar">0</div>
+              <small class="teks-redup">Sedang dikerjakan</small>
+            </div>
+
+            <div class="kartu-stat">
+              <div class="stat-atas">
+                <span>Done</span>
+                <i class="bi bi-check-circle ikon-hijau"></i>
+              </div>
+              <div id="angka-done" class="angka-besar">0</div>
+              <small id="ket-persen-selesai" class="teks-redup">0% selesai</small>
+            </div>
+          </div>
+
+          <div class="grid-dashboard-bawah">
+            <!-- Tugas Deadline Dekat -->
+            <div class="kartu">
+              <div class="header-kartu">
+                <div>
+                  <h3>Tugas Deadline Dekat</h3>
+                  <p class="teks-redup">Tugas belum selesai dengan tenggat &le; 3 hari ke depan atau terlambat</p>
+                </div>
+                <button type="button" id="btn-lihat-semua-tugas" class="tombol-teks">Lihat Semua</button>
+              </div>
+              <div id="wadah-deadline-dekat" class="daftar-list"></div>
+            </div>
+
+            <!-- Ringkasan Proyek -->
+            <div class="kartu">
+              <div class="header-kartu">
+                <div>
+                  <h3>Ringkasan Proyek</h3>
+                  <p class="teks-redup">Klik proyek untuk membuka daftar tugas di dalamnya</p>
+                </div>
+                <button type="button" id="btn-lihat-semua-proyek" class="tombol-teks">Semua Proyek</button>
+              </div>
+              <div id="wadah-ringkasan-proyek" class="daftar-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. TAMPILAN DAFTAR PROYEK -->
+        <section id="bagian-proyek" class="sembunyi">
+          <div class="bar-filter">
+            <div class="kotak-cari">
+              <i class="bi bi-search"></i>
+              <input type="text" id="cari-proyek" placeholder="Cari nama atau deskripsi proyek..." />
+            </div>
+            <div class="grup-filter">
+              <select id="filter-status-proyek">
+                <option value="SEMUA">Semua Status</option>
+                <option value="Perencanaan">Perencanaan</option>
+                <option value="Berjalan">Berjalan</option>
+                <option value="Selesai">Selesai</option>
+              </select>
+              <button type="button" id="btn-tambah-proyek-baru" class="btn btn-utama">+ Tambah Proyek</button>
+            </div>
+          </div>
+
+          <div id="grid-daftar-proyek" class="grid-proyek"></div>
+        </section>
+
+        <!-- 3. TAMPILAN TUGAS (KANBAN / LIST) -->
+        <section id="bagian-tugas" class="sembunyi">
+          <!-- Info Proyek Aktif (Muncul kalau membuka proyek spesifik) -->
+          <div id="banner-detail-proyek" class="banner-proyek sembunyi">
+            <div class="banner-atas">
+              <div>
+                <button type="button" id="btn-kembali-proyek" class="tombol-teks mb-kecil">
+                  <i class="bi bi-arrow-left"></i> Kembali ke Daftar Proyek
+                </button>
+                <div class="baris-judul-banner">
+                  <h2 id="detail-nama-proyek">Nama Proyek</h2>
+                  <span id="detail-status-proyek" class="label-status">Berjalan</span>
+                </div>
+                <p id="detail-deskripsi-proyek" class="teks-redup">Deskripsi proyek</p>
+              </div>
+              <div class="aksi-banner">
+                <button type="button" id="btn-edit-proyek-aktif" class="btn btn-sekunder btn-kecil">Edit Proyek</button>
+                <button type="button" id="btn-hapus-proyek-aktif" class="btn btn-bahaya-outline btn-kecil">Hapus Proyek</button>
+              </div>
+            </div>
+            <div class="info-bawah-banner">
+              <span id="detail-deadline-proyek">Deadline: -</span>
+              <span id="detail-progres-proyek">Progres: 0%</span>
+            </div>
+            <div class="jalur-progres">
+              <div id="bar-progres-proyek" class="isi-progres" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Filter & Pencarian Tugas -->
+          <div class="bar-filter">
+            <div class="kotak-cari">
+              <i class="bi bi-search"></i>
+              <input type="text" id="cari-tugas" placeholder="Cari judul atau deskripsi tugas..." />
+            </div>
+
+            <div class="grup-filter">
+              <select id="filter-proyek-tugas">
+                <option value="SEMUA">Semua Proyek</option>
+              </select>
+              <select id="filter-status-tugas">
+                <option value="SEMUA">Semua Status</option>
+                <option value="To-do">To-do</option>
+                <option value="In-Progress">In-Progress</option>
+                <option value="Done">Done</option>
+              </select>
+              <select id="filter-deadline-tugas">
+                <option value="SEMUA">Semua Deadline</option>
+                <option value="DEKAT">Deadline Dekat (&le; 3 Hari)</option>
+                <option value="TERLAMBAT">Terlambat</option>
+              </select>
+              <button type="button" id="btn-reset-filter" class="btn btn-sekunder btn-kecil sembunyi">Reset</button>
+              <button type="button" id="btn-tambah-tugas-baru" class="btn btn-utama btn-kecil">+ Tambah Tugas</button>
+            </div>
+          </div>
+
+          <p class="petunjuk-drag">
+            <i class="bi bi-info-circle"></i> Kamu bisa menggeser (<strong>Drag &amp; Drop</strong>) kartu tugas antar kolom untuk mengubah statusnya.
+          </p>
+
+          <!-- Papan Kanban 3 Kolom -->
+          <div class="papan-kanban">
+            <div class="kolom-kanban">
+              <div class="header-kolom">
+                <span><span class="titik-status titik-todo"></span> To-do</span>
+                <span id="hitung-todo" class="badge-angka">0</span>
+              </div>
+              <div id="kolom-To-do" class="zona-drop" data-status="To-do"></div>
+            </div>
+
+            <div class="kolom-kanban">
+              <div class="header-kolom">
+                <span><span class="titik-status titik-progress"></span> In-Progress</span>
+                <span id="hitung-progress" class="badge-angka">0</span>
+              </div>
+              <div id="kolom-In-Progress" class="zona-drop" data-status="In-Progress"></div>
+            </div>
+
+            <div class="kolom-kanban">
+              <div class="header-kolom">
+                <span><span class="titik-status titik-done"></span> Done</span>
+                <span id="hitung-done" class="badge-angka">0</span>
+              </div>
+              <div id="kolom-Done" class="zona-drop" data-status="Done"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL FORM PROYEK ==================== -->
+  <div id="modal-proyek" class="latar-modal sembunyi">
+    <div class="kotak-modal">
+      <div class="header-modal">
+        <h3 id="judul-modal-proyek">Tambah Proyek</h3>
+        <button type="button" class="btn-ikon tutup-modal" data-tutup="modal-proyek">&times;</button>
+      </div>
+      <form id="form-proyek" class="isi-modal" novalidate>
+        <input type="hidden" id="input-id-proyek" />
+        <div class="grup-input">
+          <label for="input-nama-proyek">Nama Proyek *</label>
+          <input type="text" id="input-nama-proyek" placeholder="Contoh: Website Organisasi Kampus" />
+          <small class="pesan-error" id="err-nama-proyek"></small>
+        </div>
+        <div class="grup-input">
+          <label for="input-deskripsi-proyek">Deskripsi Proyek *</label>
+          <textarea id="input-deskripsi-proyek" rows="3" placeholder="Jelaskan gambaran singkat proyek..."></textarea>
+          <small class="pesan-error" id="err-deskripsi-proyek"></small>
+        </div>
+        <div class="baris-dua-kolom">
+          <div class="grup-input">
+            <label for="input-deadline-proyek">Tanggal Deadline *</label>
+            <input type="date" id="input-deadline-proyek" />
+            <small class="pesan-error" id="err-deadline-proyek"></small>
+          </div>
+          <div class="grup-input">
+            <label for="input-status-proyek">Status *</label>
+            <select id="input-status-proyek">
+              <option value="Perencanaan">Perencanaan</option>
+              <option value="Berjalan">Berjalan</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+        </div>
+        <div class="footer-modal">
+          <button type="button" class="btn btn-sekunder tutup-modal" data-tutup="modal-proyek">Batal</button>
+          <button type="submit" class="btn btn-utama">Simpan Proyek</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL FORM TUGAS ==================== -->
+  <div id="modal-tugas" class="latar-modal sembunyi">
+    <div class="kotak-modal modal-lebar">
+      <div class="header-modal">
+        <h3 id="judul-modal-tugas">Tambah Tugas</h3>
+        <button type="button" class="btn-ikon tutup-modal" data-tutup="modal-tugas">&times;</button>
+      </div>
+      <form id="form-tugas" class="isi-modal" novalidate>
+        <input type="hidden" id="input-id-tugas" />
+        <div class="grup-input">
+          <label for="pilih-proyek-tugas">Proyek *</label>
+          <select id="pilih-proyek-tugas"></select>
+          <small class="pesan-error" id="err-proyek-tugas"></small>
+        </div>
+        <div class="grup-input">
+          <label for="input-judul-tugas">Judul Tugas *</label>
+          <input type="text" id="input-judul-tugas" placeholder="Contoh: Membuat halaman login" />
+          <small class="pesan-error" id="err-judul-tugas"></small>
+        </div>
+        <div class="grup-input">
+          <label for="input-deskripsi-tugas">Deskripsi Tugas *</label>
+          <textarea id="input-deskripsi-tugas" rows="3" placeholder="Detail pekerjaan yang harus dilakukan..."></textarea>
+          <small class="pesan-error" id="err-deskripsi-tugas"></small>
+        </div>
+        <div class="baris-dua-kolom">
+          <div class="grup-input">
+            <label for="input-deadline-tugas">Deadline *</label>
+            <input type="date" id="input-deadline-tugas" />
+            <small class="pesan-error" id="err-deadline-tugas"></small>
+          </div>
+          <div class="grup-input">
+            <label for="input-status-tugas">Status *</label>
+            <select id="input-status-tugas">
+              <option value="To-do">To-do</option>
+              <option value="In-Progress">In-Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+        </div>
+        <div class="grup-input">
+          <label for="input-lampiran-tugas">Lampiran File (Opsional, maks. 1.5 MB)</label>
+          <input type="file" id="input-lampiran-tugas" multiple accept="image/*,.pdf,.doc,.docx,.txt,.xlsx" />
+          <small class="pesan-error" id="err-lampiran-tugas"></small>
+          <div id="daftar-preview-lampiran" class="list-lampiran-form"></div>
+        </div>
+        <div class="footer-modal">
+          <button type="button" class="btn btn-sekunder tutup-modal" data-tutup="modal-tugas">Batal</button>
+          <button type="submit" class="btn btn-utama">Simpan Tugas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL PREVIEW LAMPIRAN ==================== -->
+  <div id="modal-lampiran" class="latar-modal sembunyi">
+    <div class="kotak-modal modal-lebar">
+      <div class="header-modal">
+        <h3 id="judul-modal-lampiran">Lampiran</h3>
+        <button type="button" class="btn-ikon tutup-modal" data-tutup="modal-lampiran">&times;</button>
+      </div>
+      <div id="isi-modal-lampiran" class="isi-modal tengah"></div>
+      <div class="footer-modal">
+        <a id="btn-unduh-lampiran" href="#" download class="btn btn-utama">Unduh File</a>
+        <button type="button" class="btn btn-sekunder tutup-modal" data-tutup="modal-lampiran">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL KONFIRMASI HAPUS ==================== -->
+  <div id="modal-konfirmasi" class="latar-modal sembunyi">
+    <div class="kotak-modal modal-kecil">
+      <div class="header-modal">
+        <h3 id="judul-konfirmasi">Konfirmasi</h3>
+        <button type="button" class="btn-ikon tutup-modal" data-tutup="modal-konfirmasi">&times;</button>
+      </div>
+      <div class="isi-modal">
+        <p id="teks-konfirmasi">Yakin ingin menghapus data ini?</p>
+      </div>
+      <div class="footer-modal">
+        <button type="button" class="btn btn-sekunder tutup-modal" data-tutup="modal-konfirmasi">Batal</button>
+        <button type="button" id="btn-ya-hapus" class="btn btn-bahaya">Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
